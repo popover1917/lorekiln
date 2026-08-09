@@ -1,15 +1,15 @@
 {
   "name": "lorekiln",
   "version": "0.2.0",
-  "description": "Deterministic local dialogue journaling, a governed experience pool, separate engineering application history, and explicitly authorized capability evolution.",
+  "description": "Local-first persistent memory for Codex agents: deterministic conversation journaling, human-reviewed experience distillation, and authorized Skill or plugin evolution.",
   "author": {
     "name": "popover1917"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Lorekiln",
-    "shortDescription": "Journal evidence; govern and retrieve experience on request.",
-    "longDescription": "Persist every completed turn locally without model calls, organize reusable approved lessons in a cross-session domain experience pool, record engineering applications independently, retrieve both progressively, and require verified rollback snapshots plus separate user authorization and acceptance for capability changes.",
+    "shortDescription": "Local-first, auditable memory for Codex agents.",
+    "longDescription": "Add persistent local conversation memory to Codex without automatic context injection. Lorekiln journals completed turns without model calls, distills selected evidence into a governed long-term experience pool, retrieves memory progressively, and keeps Skill or plugin evolution behind separate authorization, Evals, rollback, and acceptance gates.",
     "developerName": "popover1917",
     "category": "Productivity",
     "capabilities": [
