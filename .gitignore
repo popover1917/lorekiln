@@ -1,0 +1,33 @@
+# Machine-local synchronization config
+sync-sources.local.json
+
+# Local and sensitive state
+.env
+.env.*
+*.sqlite
+*.sqlite3
+*.db
+*.log
+*.tmp
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Codex local state
+.codex/
+memory/
+data/
+
+# Credentials and keys
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.*
+secrets.*
+
+# Generated artifacts
+dist/
+build/
+coverage/
+test-results/private/

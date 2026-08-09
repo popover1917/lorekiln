@@ -1,0 +1,56 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/memory_runtime.py\" hook session-start",
+            "commandWindows": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File \"${PLUGIN_ROOT}\\hooks\\run_memory_hook.ps1\" -EventName session-start",
+            "statusMessage": "Recovering local dialogue journal"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/memory_runtime.py\" hook user-prompt-submit",
+            "commandWindows": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File \"${PLUGIN_ROOT}\\hooks\\run_memory_hook.ps1\" -EventName user-prompt-submit",
+            "additionalContextLimit": 300,
+            "timeout": 3,
+            "statusMessage": "Checking for a manual memory anchor"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/memory_runtime.py\" hook stop",
+            "commandWindows": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File \"${PLUGIN_ROOT}\\hooks\\run_memory_hook.ps1\" -EventName stop",
+            "timeout": 3,
+            "statusMessage": "Persisting completed dialogue locally"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/memory_runtime.py\" hook session-end",
+            "commandWindows": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File \"${PLUGIN_ROOT}\\hooks\\run_memory_hook.ps1\" -EventName session-end",
+            "timeout": 3,
+            "statusMessage": "Closing local dialogue journal"
+          }
+        ]
+      }
+    ]
+  }
+}

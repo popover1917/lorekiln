@@ -1,0 +1,27 @@
+{
+  "name": "lorekiln",
+  "version": "0.2.0",
+  "description": "Deterministic local dialogue journaling, a governed experience pool, separate engineering application history, and explicitly authorized capability evolution.",
+  "author": {
+    "name": "popover1917"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Lorekiln",
+    "shortDescription": "Journal evidence; govern and retrieve experience on request.",
+    "longDescription": "Persist every completed turn locally without model calls, organize reusable approved lessons in a cross-session domain experience pool, record engineering applications independently, retrieve both progressively, and require verified rollback snapshots plus separate user authorization and acceptance for capability changes.",
+    "developerName": "popover1917",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Distill reusable lessons and biases from this work.",
+      "Save all uncommitted dialogue through the current completed turn as a memory anchor.",
+      "Review my pending experience candidates.",
+      "Show the compact index of approved experience in a named domain, then expand selected records.",
+      "Modify the named Skill or plugin from approved experience, with a change report and tests."
+    ]
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Distill Dialogue Experience"
+  short_description: "Distill selected dialogue into a governed experience pool"
+  default_prompt: "Use $distill-dialogue-experience to analyze the selected anchors, classify lessons by domain, and avoid modifying any capability."

@@ -1,0 +1,20 @@
+{
+  "name": "lorekiln",
+  "interface": {
+    "displayName": "Lorekiln"
+  },
+  "plugins": [
+    {
+      "name": "lorekiln",
+      "source": {
+        "source": "local",
+        "path": "./plugins/lorekiln"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

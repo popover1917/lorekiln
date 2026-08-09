@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Experience Memory"
+  short_description: "Query and audit the governed experience pool"
+  default_prompt: "Use $review-experience-memory to show a compact domain index, inspect selected experience, and avoid editing capability targets."

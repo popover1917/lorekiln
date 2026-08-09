@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Memory Anchor"
+  short_description: "Checkpoint the completed local dialogue journal"
+  default_prompt: "Use $create-memory-anchor to checkpoint all completed dialogue since the previous anchor."

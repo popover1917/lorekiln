@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evolve Capability"
+  short_description: "Evolve a named capability with snapshot gates and evals"
+  default_prompt: "Use $evolve-capability-from-experience to modify the named Skill or plugin from approved experience with a verified rollback snapshot and evals."
