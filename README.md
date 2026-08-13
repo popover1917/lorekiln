@@ -162,9 +162,16 @@ No. It focuses on durable evidence, governed experience, and controlled applicat
 
 ## Project status
 
-`v0.2.0` is an early-access release for Codex. The separation between capture, analysis, experience governance, and authorized evolution is implemented. Broader platform compatibility and larger public eval suites remain active work.
+`v0.2.0` remains the latest published early-access release for Codex. The `main`
+branch is preparing `0.2.1-rc.1` with hardened completed-turn recovery, a
+privacy-safe support doctor, expanded regression coverage, and a four-job
+Windows/Ubuntu CI matrix. The candidate version in source is not a published
+tag or Release.
 
 Contributions should include reproducible evidence, tests for behavior changes, and privacy impact. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [v0.2.0 release](https://github.com/popover1917/lorekiln/releases/tag/v0.2.0).
+
+Candidate evidence and remaining release gates are tracked in
+[0.2.1-rc.1 readiness](docs/release-readiness-0.2.1-rc.1.md).
 
 ## Search concepts
 
@@ -340,9 +347,15 @@ Lorekiln 运行时不会上传对话。日志与经验数据库均保存在本�
 
 ## 项目状态
 
-`v0.2.0` 是面向 Codex 的 early-access release。记录、分析、经验治理和授权演进之间的分离已经实现；更广泛的平台兼容性和更大规模的公开 Evals 仍在持续建设。
+`v0.2.0` 仍是当前已发布的 Codex early-access release。`main` 分支正在准备
+`0.2.1-rc.1`：加强完成回合与异常恢复边界，增加隐私安全的 support doctor、
+完整回归测试，以及 Windows/Ubuntu 四任务 CI 矩阵。源码中的候选版本并不
+代表已经创建对应 tag 或 Release。
 
 贡献应包含可复现证据、针对行为变更的测试以及隐私影响说明。参见 [CONTRIBUTING.md](CONTRIBUTING.md) 和 [v0.2.0 release](https://github.com/popover1917/lorekiln/releases/tag/v0.2.0)。
+
+候选版证据与剩余发布门禁见
+[0.2.1-rc.1 readiness](docs/release-readiness-0.2.1-rc.1.md)。
 
 ## 检索概念
 

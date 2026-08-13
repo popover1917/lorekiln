@@ -1,6 +1,6 @@
 {
   "name": "lorekiln",
-  "version": "0.2.0",
+  "version": "0.2.1-rc.1",
   "description": "Local-first persistent memory for Codex agents: deterministic conversation journaling, human-reviewed experience distillation, and authorized Skill or plugin evolution.",
   "author": {
     "name": "popover1917"
@@ -17,10 +17,8 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Distill reusable lessons and biases from this work.",
       "Save all uncommitted dialogue through the current completed turn as a memory anchor.",
       "Review my pending experience candidates.",
-      "Show the compact index of approved experience in a named domain, then expand selected records.",
       "Modify the named Skill or plugin from approved experience, with a change report and tests."
     ]
   }

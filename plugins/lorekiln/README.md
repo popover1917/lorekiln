@@ -49,8 +49,20 @@ From `plugins/lorekiln`:
 
 ```bash
 python scripts/memory_runtime.py doctor
+python scripts/memory_runtime.py doctor --support
 python scripts/memory_runtime.py status
 python scripts/memory_runtime.py list-anchors --reason manual --limit 5
+python scripts/memory_runtime.py materialize-anchor <anchor-id> --output anchor.json
+```
+
+`doctor --support` emits a read-only, structured support bundle with versions,
+schema state, hook trust status, recent event types, and stable issue codes. It
+redacts user-specific paths and never includes transcript text or credentials.
+
+To exercise the manual checkpoint path in a new Codex task, say:
+
+```text
+Create a memory anchor now.
 ```
 
 On Windows, the hook manifest uses `hooks/run_memory_hook.ps1` so runtime discovery does not depend on one shell's Python command resolution.

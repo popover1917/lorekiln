@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import re
+import platform
 import sqlite3
 import sys
 import tomllib
@@ -32,6 +33,8 @@ ANCHOR_PATTERNS = [
 PLUGIN_INSTANCE = "lorekiln@lorekiln"
 PLUGIN_DATA_FOLDER = "lorekiln"
 RUNTIME_VERSION = "turn-journal-v4"
+REPORT_FORMAT_VERSION = 1
+SQLITE_USER_VERSION = 4
 
 SCHEMA = """
 PRAGMA journal_mode=WAL;
@@ -117,6 +120,8 @@ def connect() -> sqlite3.Connection:
             "UPDATE session_state SET journal_offset = anchor_offset"
         )
         connection.commit()
+    connection.execute(f"PRAGMA user_version = {SQLITE_USER_VERSION}")
+    connection.commit()
     return connection
 
 
@@ -417,6 +422,28 @@ def recover_uncommitted(connection: sqlite3.Connection, exclude_session: str | N
     return results
 
 
+def recovery_issue_codes(
+    connection: sqlite3.Connection, exclude_session: str | None = None
+) -> list[str]:
+    rows = connection.execute(
+        """SELECT transcript_path FROM session_state
+        WHERE (? IS NULL OR session_id != ?)""",
+        (exclude_session, exclude_session),
+    ).fetchall()
+    issues: set[str] = set()
+    for row in rows:
+        raw = row["transcript_path"]
+        if not raw or not Path(raw).exists():
+            issues.add("TRANSCRIPT_MISSING")
+            continue
+        try:
+            with Path(raw).open("rb") as handle:
+                handle.read(1)
+        except OSError:
+            issues.add("TRANSCRIPT_UNREADABLE")
+    return sorted(issues)
+
+
 def record_turn_event(
     connection: sqlite3.Connection,
     event: dict[str, Any],
@@ -443,6 +470,7 @@ def record_turn_event(
 
 def handle_session_start(connection: sqlite3.Connection, event: dict[str, Any]) -> dict[str, Any] | None:
     session_id = str(event.get("session_id") or "")
+    recovery_issues = recovery_issue_codes(connection)
     recovered = recover_uncommitted(connection)
     upsert_session(connection, event)
     append_audit(
@@ -451,6 +479,7 @@ def handle_session_start(connection: sqlite3.Connection, event: dict[str, Any]) 
             "session_id": session_id,
             "source": event.get("source"),
             "recovered_anchor_count": len(recovered),
+            "recovery_issue_codes": recovery_issues,
             "context_injected": False,
         }
     )
@@ -496,7 +525,10 @@ def handle_user_prompt(connection: sqlite3.Connection, event: dict[str, Any]) ->
 
 def handle_stop(connection: sqlite3.Connection, event: dict[str, Any]) -> dict[str, Any]:
     state = upsert_session(connection, event)
-    offset = file_size(state["transcript_path"])
+    transcript_end = file_size(state["transcript_path"])
+    offset = discover_complete_offset(
+        state["transcript_path"], int(state["journal_offset"]), transcript_end
+    )
     connection.execute(
         """UPDATE session_state
         SET last_complete_offset = MAX(last_complete_offset, ?), last_seen_at = ?
@@ -694,7 +726,7 @@ def read_last_audit_event(target: Path) -> dict[str, Any] | None:
     return last
 
 
-def hook_state_summary() -> dict[str, Any]:
+def hook_state_summary(support: bool = False) -> dict[str, Any]:
     config_path = codex_home() / "config.toml"
     expected = {
         "SessionStart": "session_start",
@@ -702,7 +734,10 @@ def hook_state_summary() -> dict[str, Any]:
         "Stop": "stop",
         "SessionEnd": "session_end",
     }
-    result: dict[str, Any] = {"config_path": str(config_path), "events": {}}
+    result: dict[str, Any] = {
+        "config_location": "CODEX_HOME/config.toml" if support else str(config_path),
+        "events": {},
+    }
     if not config_path.exists():
         result["config_exists"] = False
         return result
@@ -711,7 +746,7 @@ def hook_state_summary() -> dict[str, Any]:
         with config_path.open("rb") as handle:
             parsed = tomllib.load(handle)
     except (OSError, tomllib.TOMLDecodeError) as exc:
-        result["config_error"] = str(exc)
+        result["config_error"] = type(exc).__name__ if support else str(exc)
         return result
     states = parsed.get("hooks", {}).get("state", {})
     for display_name, normalized in expected.items():
@@ -719,12 +754,12 @@ def hook_state_summary() -> dict[str, Any]:
         matches = [key for key in states if key.startswith(prefix)]
         entries = [states[key] for key in matches]
         result["events"][display_name] = {
-            "state_entries": matches,
+            "state_entry_count": len(matches),
             "enabled": any(entry.get("enabled", True) for entry in entries),
             "trusted_hash_recorded": any(bool(entry.get("trusted_hash")) for entry in entries),
         }
     result["state_complete"] = all(
-        event["state_entries"] and event["enabled"] and event["trusted_hash_recorded"]
+        event["state_entry_count"] and event["enabled"] and event["trusted_hash_recorded"]
         for event in result["events"].values()
     )
     result["note"] = (
@@ -734,24 +769,109 @@ def hook_state_summary() -> dict[str, Any]:
     return result
 
 
-def doctor() -> None:
+def plugin_version() -> str | None:
+    manifest = Path(__file__).resolve().parent.parent / ".codex-plugin" / "plugin.json"
+    try:
+        value = json.loads(manifest.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    version = value.get("version")
+    return str(version) if version else None
+
+
+def safe_last_audit_event(event: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not event:
+        return None
+    return {key: event[key] for key in ("event", "at", "runtime_version") if key in event}
+
+
+def read_database_summary(database: Path) -> tuple[dict[str, Any], list[str]]:
+    summary: dict[str, Any] = {
+        "database_exists": database.exists(),
+        "sqlite_schema_version": None,
+        "sqlite_user_version": None,
+        "sessions": 0,
+        "journal_segments": 0,
+        "anchors": 0,
+        "uncommitted_sessions": 0,
+        "unsynced_sessions": 0,
+    }
+    reasons: list[str] = []
+    if not database.exists():
+        reasons.append("DATABASE_MISSING")
+        return summary, reasons
+    try:
+        uri = database.resolve().as_uri() + "?mode=ro"
+        with closing(sqlite3.connect(uri, uri=True, timeout=1.0)) as connection:
+            summary.update(
+                {
+                    "sqlite_schema_version": connection.execute("PRAGMA schema_version").fetchone()[0],
+                    "sqlite_user_version": connection.execute("PRAGMA user_version").fetchone()[0],
+                    "sessions": connection.execute("SELECT COUNT(*) FROM session_state").fetchone()[0],
+                    "journal_segments": connection.execute("SELECT COUNT(*) FROM dialogue_segment").fetchone()[0],
+                    "anchors": connection.execute("SELECT COUNT(*) FROM memory_anchor").fetchone()[0],
+                    "uncommitted_sessions": connection.execute(
+                        "SELECT COUNT(*) FROM session_state WHERE journal_offset > anchor_offset"
+                    ).fetchone()[0],
+                    "unsynced_sessions": connection.execute(
+                        "SELECT COUNT(*) FROM session_state WHERE last_complete_offset > journal_offset"
+                    ).fetchone()[0],
+                }
+            )
+            integrity = connection.execute("PRAGMA quick_check").fetchone()[0]
+            summary["sqlite_quick_check"] = integrity
+            if integrity != "ok":
+                reasons.append("DATABASE_INTEGRITY_FAILED")
+    except (OSError, sqlite3.Error):
+        reasons.append("DATABASE_UNREADABLE_OR_INVALID")
+    return summary, reasons
+
+
+def build_doctor_report(support: bool = False) -> dict[str, Any]:
     target = data_dir(create=False)
     database = target / "memory.sqlite3"
     last_audit = read_last_audit_event(target)
-    hook_state = hook_state_summary()
-    report = {
+    hook_state = hook_state_summary(support=support)
+    database_summary, reasons = read_database_summary(database)
+    if not last_audit:
+        reasons.append("AUDIT_LOG_MISSING")
+    elif last_audit.get("runtime_version") != RUNTIME_VERSION:
+        reasons.append("RUNTIME_VERSION_MISMATCH")
+    if not hook_state.get("state_complete"):
+        reasons.append("HOOK_STATE_INCOMPLETE")
+    readable = target.is_dir() and os.access(target, os.R_OK)
+    writable = target.is_dir() and os.access(target, os.W_OK)
+    if target.exists() and not readable:
+        reasons.append("DATA_DIRECTORY_NOT_READABLE")
+    if target.exists() and not writable:
+        reasons.append("DATA_DIRECTORY_NOT_WRITABLE")
+    report: dict[str, Any] = {
+        "report_format_version": REPORT_FORMAT_VERSION,
+        "plugin_version": plugin_version(),
         "runtime_version": RUNTIME_VERSION,
-        "data_dir": str(target),
-        "database_exists": database.exists(),
-        "last_audit_event": last_audit,
+        "python_version": platform.python_version(),
+        "platform": {
+            "system": platform.system(),
+            "release": platform.release(),
+            "machine": platform.machine(),
+        },
+        "data_location": "PLUGIN_DATA" if os.environ.get("PLUGIN_DATA") else "default",
+        "data_directory_exists": target.is_dir(),
+        "data_directory_readable": readable,
+        "data_directory_writable": writable,
+        **database_summary,
+        "last_audit_event": safe_last_audit_event(last_audit) if support else last_audit,
         "hook_state": hook_state,
-        "healthy": bool(
-            database.exists()
-            and last_audit
-            and last_audit.get("runtime_version") == RUNTIME_VERSION
-            and hook_state.get("state_complete")
-        ),
+        "healthy": not reasons,
+        "reason_codes": sorted(set(reasons)),
     }
+    if not support:
+        report["data_dir"] = str(target)
+    return report
+
+
+def doctor(support: bool = False) -> None:
+    report = build_doctor_report(support=support)
     print(json.dumps(report, ensure_ascii=False))
 
 
@@ -798,7 +918,10 @@ def main() -> None:
     distill_parser.add_argument("anchor_id")
     distill_parser.add_argument("status", choices=("pending", "in_review", "distilled", "skipped"))
     subparsers.add_parser("status")
-    subparsers.add_parser("doctor")
+    doctor_parser = subparsers.add_parser("doctor")
+    doctor_parser.add_argument(
+        "--support", action="store_true", help="emit a path-redacted issue-safe JSON report"
+    )
     args = parser.parse_args()
     if args.command == "hook":
         run_hook(args.name)
@@ -811,7 +934,7 @@ def main() -> None:
     elif args.command == "set-distillation":
         set_distillation(args.anchor_id, args.status)
     elif args.command == "doctor":
-        doctor()
+        doctor(args.support)
 
 
 if __name__ == "__main__":

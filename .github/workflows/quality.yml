@@ -10,30 +10,25 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
       - name: Validate public package
         run: |
-          python -m json.tool .agents/plugins/marketplace.json >/dev/null
-          python -m json.tool plugins/lorekiln/.codex-plugin/plugin.json >/dev/null
-          python -m json.tool plugins/lorekiln/hooks/hooks.json >/dev/null
-          python -m compileall -q plugins
+          python -c "import json; json.load(open('.agents/plugins/marketplace.json', encoding='utf-8'))"
+          python -c "import json; json.load(open('plugins/lorekiln/.codex-plugin/plugin.json', encoding='utf-8'))"
+          python -c "import json; json.load(open('plugins/lorekiln/hooks/hooks.json', encoding='utf-8'))"
+          python -m compileall -q plugins tests
+          python tests/check_public_package.py
           python -m unittest discover -s tests -v
-      - name: Reject private runtime artifacts
-        shell: bash
-        run: |
-          set -euo pipefail
-          forbidden=$(find . -type f \( -name '*.sqlite' -o -name '*.sqlite3' -o -name '*.db' -o -name '.env' -o -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name '*.pfx' \) -print)
-          if [ -n "$forbidden" ]; then
-            echo "Forbidden local or sensitive files found:"
-            echo "$forbidden"
-            exit 1
-          fi
-          if git grep -nIE '[A-Za-z]:\\Users\\[^\\]+' -- ':!*.png' ':!*.jpg' ':!*.pdf'; then
-            echo 'Windows user-specific absolute path detected.'
-            exit 1
-          fi
+          python tests/benchmark_lorekiln.py
