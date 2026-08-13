@@ -162,11 +162,13 @@ No. It focuses on durable evidence, governed experience, and controlled applicat
 
 ## Project status
 
-`v0.2.0` remains the latest published early-access release for Codex. The `main`
-branch is preparing `0.2.1-rc.1` with hardened completed-turn recovery, a
-privacy-safe support doctor, expanded regression coverage, and a four-job
-Windows/Ubuntu CI matrix. The candidate version in source is not a published
-tag or Release.
+`v0.2.0` remains the latest tagged early-access release for Codex. The `main`
+branch contains the `0.2.1-rc.1` technical candidate and is approved for a
+bounded Early Access community rollout. It includes hardened completed-turn
+recovery, a privacy-safe support doctor, expanded regression coverage, and a
+four-job Windows/Ubuntu CI matrix. The candidate is not a stable-version claim
+and is not a published `0.2.1-rc.1` tag or Release. Unix-like CI validates the
+source package, but a real Unix-like Codex installation journey remains open.
 
 Contributions should include reproducible evidence, tests for behavior changes, and privacy impact. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [v0.2.0 release](https://github.com/popover1917/lorekiln/releases/tag/v0.2.0).
 
@@ -347,10 +349,11 @@ Lorekiln 运行时不会上传对话。日志与经验数据库均保存在本�
 
 ## 项目状态
 
-`v0.2.0` 仍是当前已发布的 Codex early-access release。`main` 分支正在准备
-`0.2.1-rc.1`：加强完成回合与异常恢复边界，增加隐私安全的 support doctor、
-完整回归测试，以及 Windows/Ubuntu 四任务 CI 矩阵。源码中的候选版本并不
-代表已经创建对应 tag 或 Release。
+`v0.2.0` 仍是当前已有 tag 的 Codex Early Access 版本。`main` 分支包含
+`0.2.1-rc.1` 技术候选版，现允许面向限定社区开展 Early Access 试投放。该候选版
+加强了完成回合与异常恢复边界，增加隐私安全的 support doctor、完整回归测试，
+以及 Windows/Ubuntu 四任务 CI 矩阵；它不代表稳定版，也不代表已经创建对应 tag
+或 Release。Unix-like CI 只验证源码包，真实 Unix-like Codex 安装旅程仍待完成。
 
 贡献应包含可复现证据、针对行为变更的测试以及隐私影响说明。参见 [CONTRIBUTING.md](CONTRIBUTING.md) 和 [v0.2.0 release](https://github.com/popover1917/lorekiln/releases/tag/v0.2.0)。
 
