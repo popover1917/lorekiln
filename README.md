@@ -4,7 +4,7 @@
 
 Lorekiln is an open-source **persistent AI agent memory plugin for Codex**. It combines local conversation journaling, on-demand experience distillation, a governed long-term experience store, and human-authorized Skill or plugin evolution—without automatically injecting an entire chat history into every prompt.
 
-Canonical repository: [GitHub](https://github.com/popover1917/lorekiln). Manually synchronized public backup: [Gitee](https://gitee.com/wenjie-the-whisper-of-wisdom/lorekiln). GitHub remains the source of truth; the Gitee mirror is updated only when the owner explicitly requests synchronization.
+Canonical repository: [GitHub](https://github.com/popover1917/lorekiln). Manually synchronized mainland-China mirror: [Gitee](https://gitee.com/wenjie-the-whisper-of-wisdom/lorekiln). GitHub remains the source of truth; the Gitee mirror is updated only when the owner explicitly requests synchronization.
 
 If you are looking for **Codex memory**, **local AI agent memory**, **persistent conversation memory**, **token-efficient context management**, **auditable agent learning**, or **human-in-the-loop agent improvement**, Lorekiln is built for that problem.
 
@@ -191,7 +191,7 @@ MIT. See [LICENSE](LICENSE).
 
 Lorekiln 是一款面向 Codex 的开源**持久化 AI Agent 记忆 plugin**。它将本地对话日志、按需经验萃取、受治理的长期经验池，以及经人类授权的 Skill 或 plugin 演进组合在一起，同时避免把全部对话历史自动注入每一次 prompt。
 
-主仓库：[GitHub](https://github.com/popover1917/lorekiln)。手动同步的公开备份：[Gitee](https://gitee.com/wenjie-the-whisper-of-wisdom/lorekiln)。GitHub 始终是唯一事实源；只有所有者明确要求同步时，才更新 Gitee 镜像。
+主仓库：[GitHub](https://github.com/popover1917/lorekiln)。面向大陆网络与中文社区、经人工批准同步的国内镜像：[Gitee](https://gitee.com/wenjie-the-whisper-of-wisdom/lorekiln)。GitHub 始终是唯一事实源；只有所有者明确要求同步时，才更新 Gitee 镜像。
 
 如果你正在寻找 **Codex memory**、**本地 AI Agent 记忆**、**持久化对话记忆**、**节省 Token 的上下文管理**、**可审计的 Agent 学习**或**人类参与治理的 Agent 改进**，Lorekiln 正是为此而设计。
 
@@ -256,7 +256,7 @@ Lorekiln 可以与 RAG 配合使用，但它不是 vector database。它关注�
 前置条件：Codex、Git，以及 Python 3.11 或更高版本。
 
 ```bash
-git clone https://github.com/popover1917/lorekiln.git
+git clone https://gitee.com/wenjie-the-whisper-of-wisdom/lorekiln.git
 cd lorekiln
 codex plugin marketplace add .
 codex plugin add lorekiln@lorekiln
@@ -341,7 +341,7 @@ tests/                             隔离的公开 smoke tests
 
 ### 对话数据会被上传吗？
 
-Lorekiln 运行时不会上传对话。日志与经验数据库均保存在本地。只有下载或贡献源码时才需要正常访问 GitHub。
+Lorekiln 运行时不会上传对话。日志与经验数据库均保存在本地。通过 Gitee 国内镜像安装和使用不要求访问 GitHub；向 GitHub 下载或贡献源码时才需要正常访问 GitHub。
 
 ### Lorekiln 是 RAG framework 或 vector database 吗？
 
