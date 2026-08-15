@@ -11,9 +11,17 @@ Thank you for helping make governed agent memory more useful and inspectable.
 5. Run the public checks:
 
 ```bash
-python -m unittest discover -s tests -v
-python -m compileall -q plugins
+python scripts/dev_check.py --benchmark
 ```
+
+On Windows with Ubuntu WSL2, also run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/dev-check-wsl.ps1 -Benchmark
+```
+
+See [development environment](docs/development.md) for VS Code tasks and the
+browser-independent GitHub Actions status command.
 
 For Lorekiln behavior changes, preserve the separation between mechanical capture, requested analysis, experience governance and explicitly authorized capability evolution.
 

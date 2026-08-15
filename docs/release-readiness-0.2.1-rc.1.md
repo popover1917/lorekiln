@@ -26,6 +26,13 @@ Candidate implementation commit: `8d8a1b0bc0f4167e8c4b3fdab2788ab38002327d`
   store remained intact. The database contained 63 unique anchors and the
   materialized anchor directory contained the same 63 records: 62
   `captured/pending` and one `captured/in_review`.
+- The complete 18-test public suite and benchmark pass locally under Ubuntu
+  WSL2, Linux kernel `6.6.87.2-microsoft-standard-WSL2`, and Python 3.12.3.
+  This is direct Unix-like source/runtime evidence, but it does not substitute
+  for a clean Codex marketplace install and Hook-trust journey on Linux.
+- GitHub Actions run
+  [31679481459](https://github.com/popover1917/lorekiln/actions/runs/31679481459)
+  completed successfully for public commit `d565a44584e905cb233e203340e81a3f17e9de96`.
 
 ## Early Access rollout boundary
 
